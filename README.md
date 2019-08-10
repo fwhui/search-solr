@@ -45,21 +45,21 @@ solr的安装参考下文附录I，现假设大家的solr环境是正常的。
 
 1、默认页面效果
 
-![default](doc/img/default.png)
+![default](/Users/admin/Documents/me/github/search-solr/doc/img/default.png)
 
 2、关键字查询效果
 
-![image1](doc/img/image1.png)
+![image1](/Users/admin/Documents/me/github/search-solr/doc/img/image1.png)
 
 3、类目价格筛选效果
 
-![iamge3](doc/img/iamge3.png)
+![iamge3](/Users/admin/Documents/me/github/search-solr/doc/img/iamge3.png)
 
-![image4](doc/img/image4.png)
+![image4](/Users/admin/Documents/me/github/search-solr/doc/img/image4.png)
 
 4、价格、上架时间、更新时间排序效果
 
-![image5](doc/img/image5.png)
+![image5](/Users/admin/Documents/me/github/search-solr/doc/img/image5.png)
 
 
 
@@ -79,7 +79,7 @@ Started Solr server on port 8983 (pid=65295). Happy searching!
 
 4、在浏览器访问：localhost:8983，会出现以下页面：
 
-![solr_ok](doc/img/solr_ok.png)
+![solr_ok](/Users/admin/Documents/me/github/search-solr/doc/img/solr_ok.png)
 
 5、solr安装完成(需要将solr服务移到tomcat启动的可以自行查找相关资料)
 
@@ -93,7 +93,7 @@ Started Solr server on port 8983 (pid=65295). Happy searching!
 
 （1）、solr管理后台新建core
 
-![new_core](doc/img/new_core.png)
+![new_core](/Users/admin/Documents/me/github/search-solr/doc/img/new_core.png)
 
 （2）、solr命令新建core
 
@@ -122,7 +122,7 @@ B、进入创建的core文件夹，修改其`conf/managed-schema`文件，添加
 
 C、重启服务，进入solr后台测试下分词效果：
 
-![text_cn](doc/img/text_cn.png)
+![text_cn](/Users/admin/Documents/me/github/search-solr/doc/img/text_cn.png)
 
 （2）、配置ik分词器
 
@@ -130,7 +130,7 @@ A、下载中文分词器IKAnalyzer，[下载地址](https://download.csdn.net/d
 
 B、解压下载的压缩包( ext.dic可自定义分词 )，目录如下：
 
-![ik](doc/img/ik.png)
+![ik](/Users/admin/Documents/me/github/search-solr/doc/img/ik.png)
 
 C、将两个jar包复制到`solr解压目录/server/solr-webapp/webapp/WEB-INF/lib`目录下，将三个配置文件复制到`solr解压目录/server/solr-webapp/webapp/WEB-INF/classes`目录下，如果没有classes文件夹就新建。
 
@@ -151,7 +151,7 @@ D、进入创建的core文件夹，修改其`conf/managed-schema`文件，添加
 
 E、重启服务，进入solr后台测试下分词效果：
 
-![text_ik](doc/img/text_ik.png)
+![text_ik](/Users/admin/Documents/me/github/search-solr/doc/img/text_ik.png)
 
 - 附录III     将mysql数据导入solr
 
@@ -204,8 +204,9 @@ managed-schema文件里一些常用的字段已做好映射，例如id，所以�
 
 5、重启solr服务，进入solr后台导入数据
 
-![data-execute](doc/img/data-execute.png)
+![data-execute](/Users/admin/Documents/me/github/search-solr/doc/img/data-execute.png)
 
 6、测试数据是否导入成功
 
-![query](doc/img/query.png)
+![query](/Users/admin/Documents/me/github/search-solr/doc/img/query.png)
+
