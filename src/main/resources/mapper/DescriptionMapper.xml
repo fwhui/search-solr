@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="search.solr.searchsolr.dao.DescriptionMapper" >
+  <resultMap id="BaseResultMap" type="search.solr.searchsolr.damain.Description" >
+    <id column="pid" property="pid" jdbcType="BIGINT" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="updated" property="updated" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="search.solr.searchsolr.damain.Description" extends="BaseResultMap" >
+    <result column="desc" property="desc" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    pid, created, updated
+  </sql>
+  <sql id="Blob_Column_List" >
+    desc
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from description
+    where pid = #{pid,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from description
+    where pid = #{pid,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="search.solr.searchsolr.damain.Description" >
+    insert into description (pid, created, updated, 
+      desc)
+    values (#{pid,jdbcType=BIGINT}, #{created,jdbcType=TIMESTAMP}, #{updated,jdbcType=TIMESTAMP}, 
+      #{desc,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="search.solr.searchsolr.damain.Description" >
+    insert into description
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pid != null" >
+        pid,
+      </if>
+      <if test="created != null" >
+        created,
+      </if>
+      <if test="updated != null" >
+        updated,
+      </if>
+      <if test="desc != null" >
+        desc,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pid != null" >
+        #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="created != null" >
+        #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updated != null" >
+        #{updated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="desc != null" >
+        #{desc,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="search.solr.searchsolr.damain.Description" >
+    update description
+    <set >
+      <if test="created != null" >
+        created = #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updated != null" >
+        updated = #{updated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="desc != null" >
+        desc = #{desc,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="search.solr.searchsolr.damain.Description" >
+    update description
+    set created = #{created,jdbcType=TIMESTAMP},
+      updated = #{updated,jdbcType=TIMESTAMP},
+      desc = #{desc,jdbcType=LONGVARCHAR}
+    where pid = #{pid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="search.solr.searchsolr.damain.Description" >
+    update description
+    set created = #{created,jdbcType=TIMESTAMP},
+      updated = #{updated,jdbcType=TIMESTAMP}
+    where pid = #{pid,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Happy solr search</title>
+    <link rel="icon" type="image/png" th:href="@{/common/icon.png}">
+    <link th:href="@{/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+    <style type="text/css">
+        #label div{
+            padding: 5px;
+            margin: 0 6px;
+        }
+        div.label .cancle:hover{
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<!-- header -->
+<nav class="navbar navbar-default navbar-static-top navbar-inverse">
+    <div class="container-fluid text-center">
+        <div class="navbar-header" style="color: #aaa;">
+            <h4><span class="label label-success">Solr</span> Happy searching</h4>
+        </div>
+    </div>
+</nav>
+
+<!-- body -->
+<div class="container">
+
+    <!-- search -->
+    <div class="jumbotron text-center" style="padding: 20px;">
+
+
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 input-group-lg">
+                <div class="input-group input-group-lg">
+                    <input type="text" name="keyword" class="form-control" placeholder="Search">
+                    <span class="input-group-btn">
+              <button class="btn btn-default" type="button" id="search">
+                <span class="glyphicon glyphicon-search"></span>
+              </button>
+            </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 10px;">
+            <div class="col-md-1 text-right" style="line-height: 22px;">
+                类目
+            </div>
+            <div class="col-md-11 text-left">
+                <div class="btn-group btn-group-xs" role="group" id="category_group">
+                    <button type="button" class="btn btn-default" th:each="c:${categorys}" th:onclick="javascript:add_label([[${c}]],'category_label');" th:text="${c}"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 10px;">
+            <div class="col-md-1 text-right" style="line-height: 22px;">
+                价格
+            </div>
+            <div class="col-md-4 text-left">
+                <div class="btn-group btn-group-xs" role="group">
+                    <button type="button" class="btn btn-default" onclick="add_label('1000-2000','price_label');">1000-2000</button>
+                    <button type="button" class="btn btn-default" onclick="add_label('2000-5000','price_label');">2000-5000</button>
+                    <button type="button" class="btn btn-default" onclick="add_label('5000-10000','price_label');">5000-10000</button>
+                    <button type="button" class="btn btn-default" onclick="add_label('10000以上','price_label');">10000以上</button>
+                </div>
+            </div>
+            <div class="col-md-6 text-left">
+                <input type="text" name="price_p1" style="width: 60px;height: 22px;" /> -
+                <input type="text" name="price_p2" style="width: 60px;height: 22px;"/>
+                <button type="button" class="btn btn-default btn-xs" id="input_price">确定</button>
+            </div>
+        </div>
+
+
+
+        <!-- 已经选中的label -->
+        <div class="row" style="margin-top: 10px;" id="label">
+
+        </div>
+
+    </div>
+
+    <!-- sort -->
+    <div style="background: #eee;margin:10px auto;padding: 5px;">
+        <div class="btn-group btn-group-xs" role="group">
+            <button type="button" class="btn btn-default" onclick="add_label_sort('价格','price_sort');">价格</button>
+            <button type="button" class="btn btn-default" onclick="add_label_sort('上架时间','create_sort');">上架时间</button>
+            <button type="button" class="btn btn-default" onclick="add_label_sort('更新时间','update_sort');">更新时间</button>
+        </div>
+    </div>
+
+    <!-- data -->
+    <div class="row datas text-center">
+
+    </div>
+
+    <!-- page -->
+    <nav>
+        <ul class="pager" id="page_show" style="margin-bottom: 88px;">
+
+        </ul>
+    </nav>
+
+</div>
+
+
+<script th:src="@{/common/jquery.min.js}"></script>
+<script th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+
+<script type="text/javascript">
+
+    // 创建json参数
+    var request={};
+
+    // 关键字搜索
+    $('#search').click(function(){
+        var keyword=$('input[name=keyword]').val();
+        if(keyword.trim()!=''){
+            request.keyword=keyword.trim();
+        }else{
+            delete request.keyword;
+        }
+        //alert(JSON.stringify(request));
+        // 发起数据
+        getData(1);
+    });
+
+    // 添加范围标签
+    function add_label(data,type){
+        var ele=$('div#'+type);
+        if(ele.html()!=undefined){
+            $('div#'+type+' span.text').html(data);
+        }else{
+            var label=createLabel(data,type);
+            $('#label').append(label);
+        }
+
+        if(type=="category_label"){
+            request.category=data;
+        }else if(type=="price_label"){
+            request.price_range=data;
+        }
+        //alert(JSON.stringify(request));
+        // 发起数据
+        getData(1);
+    }
+
+    // 创建范围label
+    function createLabel(data,type){
+        label_type="";
+        if(type=="category_label"){
+            label_type="label-success";
+        }else if(type=="price_label"){
+            label_type="label-info";
+        }
+        var dom="";
+        dom+='<div class="label '+label_type+'" id="'+type+'">';
+        dom+='  <span class="text">'+data+'</span>';
+        dom+='  <span class="glyphicon glyphicon-remove-circle cancle"></span>';
+        dom+='</div>';
+
+        return dom;
+    }
+
+    // 类目标签清除
+    $('#label').on('click','#category_label .cancle',function(){
+        // 移除元素
+        $('#category_label').remove();
+        // 清除请求数据
+        delete request.category;
+        //alert(JSON.stringify(request));
+        // 发起数据
+        getData(1);
+    });
+
+    // 价格区间标签清除
+    $('#label').on('click','#price_label .cancle',function(){
+        // 移除元素
+        $('#price_label').remove();
+        $('input[name=price_p1]').val('');
+        $('input[name=price_p2]').val('');
+        // 清除请求数据
+        delete request.price_range;
+        //alert(JSON.stringify(request));
+        // 发起数据
+        getData(1);
+    });
+
+    // 手动输入价格范围
+    $('#input_price').click(function(){
+        price_p1=$('input[name=price_p1]').val();
+        price_p2=$('input[name=price_p2]').val();
+        data="";
+        if(!isNum(price_p1) && !isNum(price_p2)){
+            alert("请输入合理的价格):");
+            $('input[name=price_p1]').val('');
+            $('input[name=price_p2]').val('');
+            return;
+        }
+        else if(isNum(price_p1) && !isNum(price_p2)){
+            $('input[name=price_p2]').val('');
+            data=price_p1+"以上";
+        }
+        else if(!isNum(price_p1) && isNum(price_p2)){
+            $('input[name=price_p1]').val('');
+            data=price_p2+"以下";
+        }
+        else if(isNum(price_p1) && isNum(price_p2) && parseInt(price_p1)>parseInt(price_p2)){
+            alert("请输入合理的价格):");
+            return;
+        }else{
+            data=price_p1+"-"+price_p2;
+        }
+        add_label(data,'price_label');
+    });
+
+    // 验证数字
+    function isNum(str){
+        var reg=/^(0|[1-9][0-9]*)$/;
+        var pattern=new RegExp(reg);
+        return pattern.test(str.trim());
+    }
+
+    // 创建排序标签
+    function add_label_sort(data,type){
+        var ele=$('div#'+type);
+        if(ele.html()==undefined){
+            var label=createSortLabel(data,type);
+            $('#label').append(label);
+            request[type]="asc";
+            //alert(JSON.stringify(request));
+            // 发起数据
+            getData(1);
+            return;
+        }
+        if(request[type]=="asc"){
+            request[type]="desc";
+            $('#'+type+' .sort').removeClass('glyphicon-arrow-up').addClass('glyphicon-arrow-down');
+        }else{
+            request[type]="asc";
+            $('#'+type+' .sort').removeClass('glyphicon-arrow-down').addClass('glyphicon-arrow-up');
+        }
+        //alert(JSON.stringify(request));
+        // 发起数据
+        getData(1);
+    }
+
+    // 构建排序标签
+    function createSortLabel(data,type){
+        // 只能有一个排序标签存在，所以创建时先删除其他的排序标签
+        $('#price_sort').remove();
+        delete request.price_sort;
+        $('#create_sort').remove();
+        delete request.create_sort;
+        $('#update_sort').remove();
+        delete request.update_sort;
+
+        label_type="";
+        if(type=="price_sort"){
+            label_type="label-danger";
+        }else if(type=="create_sort"){
+            label_type="label-primary";
+        }else if(type=="update_sort"){
+            label_type="label-warning";
+        }
+        var dom="";
+        dom+='<div class="label '+label_type+'" id="'+type+'">';
+        dom+='  <span class="text">'+data+'</span>';
+        dom+='  <span class="glyphicon glyphicon-arrow-up sort"></span>';
+        dom+='  <span class="glyphicon glyphicon-remove-circle cancle"></span>';
+        dom+='</div>';
+
+        return dom;
+    }
+
+
+    // 价格排序标签清除
+    $('#label').on('click','#price_sort .cancle',function(){
+        // 移除元素
+        $('#price_sort').remove();
+        // 清除请求数据
+        delete request.price_sort;
+        //alert(JSON.stringify(request));
+        // 发起数据
+        getData(1);
+    });
+
+    // 上架时间排序标签清除
+    $('#label').on('click','#create_sort .cancle',function(){
+        // 移除元素
+        $('#create_sort').remove();
+        // 清除请求数据
+        delete request.create_sort;
+        //alert(JSON.stringify(request));
+        // 发起数据
+        getData(1);
+    });
+
+    // 更新时间排序标签清除
+    $('#label').on('click','#update_sort .cancle',function(){
+        // 移除元素
+        $('#update_sort').remove();
+        // 清除请求数据
+        delete request.update_sort;
+        //alert(JSON.stringify(request));
+        // 发起数据
+        getData(1);
+    });
+
+    getData(1);
+
+    function getData(offset){
+        $.ajax({
+            url:'/search',
+            type:'GET',
+            data:{
+                "offset":offset,
+                "conditions":JSON.stringify(request)
+            },
+            dataType:'JSON',
+            success : function(data){
+                // 清除原有列表数据
+                $('.datas').children(1).remove();
+                // 清除分页数据
+                $('#page_show').children(1).remove();
+                if(data.code==0){
+                    var datas=data.data;
+                    if(datas.length==0){
+                        $('.datas').append(createNotDataDom());
+                        return;
+                    }
+                    // 添加列表数据
+                    for(var i=0;i<datas.length;i++){
+                        var dom =createDataDom(datas[i]);
+                        $('.datas').append(dom);
+                    }
+                    // 添加分页数据
+                    var page=createPageInfo(data);
+                    $('#page_show').append(page);
+                }else{
+                    $('.datas').append(createNotDataDom());
+                }
+                $('[data-toggle="tooltip"]').tooltip();
+            }
+        });
+    }
+
+    function createDataDom(data){
+        var dom="";
+        dom+='<div class="col-xs-6 col-md-3">';
+        dom+=' <div class="thumbnail text-center">';
+        title= "";
+        if(data.title.length>18){
+            title=data.title.substr(0,18)+"...";
+        }else{
+            title=data.title;
+        }
+        dom+='   <h5 data-toggle="tooltip" data-placement="top" title="'+data.title+'">'+title+'</h5>';
+        dom+='   <p><span class="label label-primary">上架时间：'+data.created_str+'</span></p>';
+        dom+='   <p><span class="label label-warning">更新时间：'+data.updated_str+'</span></p>';
+        dom+='   <span class="label label-info">price '+data.price+'</span>';
+        dom+=' </div>';
+        dom+='</div>';
+        return dom;
+    }
+
+    function createPageInfo(data){
+        var dom="";
+        dom+='<li class="previous">';
+        if(data.prev == data.currentPage){
+            dom+='<a href="javascript:void;" data-toggle="tooltip" data-placement="left" title="没有上一页了哦"><span class="glyphicon glyphicon-chevron-left"></span>上一页</a>';
+        }else{
+            dom+='<a href="javascript:void;" class="prev_page" value="'+data.prev+'"><span class="glyphicon glyphicon-chevron-left"></span>上一页</a>';
+        }
+        dom+='</li>';
+        dom+='<span style="line-height: 32px;">'+data.currentPage+' / '+data.pages+'</span>';
+        dom+='<li class="next">';
+        if(data.next == data.currentPage){
+            dom+='<a href="javascript:void;" data-toggle="tooltip" data-placement="right" title="没有下一页了哦">下一页<span class="glyphicon glyphicon-chevron-right"></span></a>';
+        }else{
+            dom+='<a href="javascript:void;" class="next_page" value="'+data.next+'">下一页<span class="glyphicon glyphicon-chevron-right"></span></a>';
+        }
+        dom+='</li>';
+        return dom;
+    }
+
+    // 上一页
+    $('#page_show').on('click','.prev_page',function(){
+        getData($('.prev_page').attr('value'));
+    });
+
+    // 下一页
+    $('#page_show').on('click','.next_page',function(){
+        getData($('.next_page').attr('value'));
+    });
+
+    function createNotDataDom(){
+        var dom="";
+        dom+='<h2><span class="glyphicon glyphicon-leaf"> There is no data</span></h2>';
+        return dom;
+    }
+
+</script>
+
+</body>
+</html>

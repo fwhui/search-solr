@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataConfig>
+    <dataSource type="JdbcDataSource" driver="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost:3306/product" user="root" password="root"/>
+    <document>
+        <entity name="product" query="select p.id,p.title,p.sell_point,p.price,c.name,d.desc,p.created,p.updated from product p,category c,description d where p.cid=c.id and p.id = d.pid">
+            <field column="id" name="id"/>
+            <field column="title" name="prod_title"/>
+            <field column="sell_point" name="prod_sell_point"/>
+            <field column="price" name="prod_price"/>
+            <field column="name" name="prod_category"/>
+            <field column="desc" name="prod_desc"/>
+            <field column="created" name="prod_created"/>
+            <field column="updated" name="prod_updated"/>
+        </entity>
+    </document>
+</dataConfig>
